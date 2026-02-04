@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CairosStone Bracelet Customizer</title>
+    <!-- Explicitly set favicon to prevent 404 errors from default /favicon.ico requests -->
+    <link rel="icon" href="src/app/favicon.ico" sizes="any">
+    <link rel="shortcut icon" href="src/app/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="src/app/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preload" as="image" href="public/tarot/card-back.png">
+    <script>
+        // Auto-detect environment: if not in iframe, apply dark background for visibility
+        try {
+            if (window.self === window.top) {
+                // Dark background for standalone/local debugging
+                var style = document.createElement('style');
+                style.innerHTML = 'body { background: linear-gradient(135deg, #1f1c2c 0%, #928DAB 100%) !important; min-height: 100vh; } .gradient-bg { background: transparent !important; }';
+                document.head.appendChild(style);
+            }
+        } catch(e) { console.log('Environment detection failed', e); }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Welcome Page -->
+        <div id="welcome-page" class="min-h-screen gradient-bg flex justify-center px-4" style="padding-top: 20px; align-items: flex-start;">
+            <div class="mx-auto text-center" style="color: #FFFFFF; max-width: 1140px;">
+                <h1 class="text-5xl font-bold mb-4">CairosStone Bracelet Customizer</h1>
+    <p class="text-xl mb-8 opacity-90">Guided by Tarot, customize your healing bracelet color scheme; adjustable bead count for protection and balance.</p>
+                
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 relative shadow-md">
+                                <img src="http://cairosstone.com/wp-content/uploads/2026/01/heart-potion.png" alt="Tarot Guidance Icon" class="w-12 h-12 object-contain" 
+                                     onload="this.style.display='block'; document.getElementById('tarot-icon-fallback').style.display='none'"
+                                     onerror="this.style.display='none'; document.getElementById('tarot-icon-fallback').style.display='block'" 
+                                     style="display: none;" />
+                                <span id="tarot-icon-fallback" class="text-2xl">/span>
+                            </div>
+            <h3 class="font-semibold mb-2">Tarot Guidance & Reading</h3>
+            <p class="text-sm opacity-80">Draw cards gently to listen to the whispers of the universe.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 relative shadow-md">
+                                <img src="http://cairosstone.com/wp-content/uploads/2026/01/energy-butterfly.png" alt="Energy Color Icon" class="w-12 h-12 object-contain" 
+                                     onload="this.style.display='block'; document.getElementById('energy-icon-fallback').style.display='none'"
+                                     onerror="this.style.display='none'; document.getElementById('energy-icon-fallback').style.display='block'" 
+                                     style="display: none;" />
+                                <span id="energy-icon-fallback" class="text-2xl">/span>
+                            </div>
+    <h3 class="font-semibold mb-2">Energy Color Generation</h3>
+    <p class="text-sm opacity-80">Generate exclusive energy color palettes based on the reading.</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 relative shadow-md">
+                                <img src="http://cairosstone.com/wp-content/uploads/2026/01/crystal-bracelet.png" alt="Bracelet Preview Icon" class="w-12 h-12 object-contain" 
+                                     onload="this.style.display='block'; document.getElementById('bracelet-icon-fallback').style.display='none'"
+                                     onerror="this.style.display='none'; document.getElementById('bracelet-icon-fallback').style.display='block'" 
+                                     style="display: none;" />
+                                <span id="bracelet-icon-fallback" class="text-2xl">/span>
+                            </div>
+                            <h3 class="font-semibold mb-2">Bracelet Preview</h3>
+                            <p class="text-sm opacity-80">Real-time preview of bracelet color effects.</p>
+                        </div>
+                    </div>
+
+                    <button onclick="startTarotReading()" class="px-8 py-4 rounded-full text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 mt-8" style="background: linear-gradient(135deg, #8b6f47 0%, #6d5a3e 100%); color: white;">
+    Start Your Tarot Journey →
+                    </button>
+                </div>
+
+                <div class="text-sm opacity-70">
+                    <p>💡 Tip: The whole process takes only 2-3 minutes.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarot Question Page -->
+        <div id="tarot-question-page" class="min-h-screen gradient-bg flex justify-center px-4" style="display: none; padding-top: 20px; align-items: flex-start;">
+            <div class="mx-auto text-center" style="max-width: 1140px;">
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
+                    <h2 class="text-3xl font-bold mb-6" style="color: #FFFFFF;">Please enter the question you want to ask</h2>
+    <p class="text-lg mb-6" style="color: #FFFFFF;">Place your question gently in your heart, and I will help you see the direction with the wisdom of Tarot, and craft an exclusive energy bracelet for you.</p>
+                    
+    <textarea id="tarot-question" class="w-full p-4 rounded-lg border-2 border-purple-300 focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 mb-6 h-32 resize-none bg-white/90" placeholder="e.g., How can the next step in my career be smoother? How to improve current energy and stability?"></textarea>
+                    
+                    <button onclick="drawTarotCards()" class="px-8 py-4 rounded-full text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105" style="background: linear-gradient(135deg, #8b6f47 0%, #6d5a3e 100%); color: white;">
+    Ready, Tap to Draw →
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tarot Draw Page -->
+        <div id="tarot-draw-page" class="min-h-screen gradient-bg flex justify-center px-4" style="display: none; padding-top: 10px; align-items: flex-start;">
+            <div class="w-full mx-auto text-center pb-24" style="max-width: 1140px;">
+                <!-- H2 Title removed as requested -->
+                
+                <!-- Card Back Fan Display Area -->
+                <div class="relative mb-8 mx-auto" style="width: 100%; height: 280px; margin-top: 56px;">
+                    <div id="tarot-deck" class="cursor-pointer"></div>
+                </div>
+                <!-- Drawn Card Display Area: Arranged by content width and centered, increased column gap -->
+                <div class="inline-grid grid-cols-[140px_140px_140px] justify-center gap-8 mb-12 mx-auto">
+                        <div id="tarot-past" class="tarot-card-slot">
+                        <div class="tarot-card-back backdrop-blur-sm rounded-lg p-4 flex items-center justify-center" style="background: rgba(212, 196, 168, 0.3); border: 1px solid #e6d5a3;"></div>
+                        <div class="tarot-card-front hidden">
+                            <!-- Card face will be dynamically generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                        <div id="tarot-present" class="tarot-card-slot">
+                        <div class="tarot-card-back backdrop-blur-sm rounded-lg p-4 flex items-center justify-center" style="background: rgba(212, 196, 168, 0.3); border: 1px solid #e6d5a3;"></div>
+                        <div class="tarot-card-front hidden">
+                            <!-- Card face will be dynamically generated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                        <div id="tarot-future" class="tarot-card-slot">
+                        <div class="tarot-card-back backdrop-blur-sm rounded-lg p-4 flex items-center justify-center" style="background: rgba(212, 196, 168, 0.3); border: 1px solid #e6d5a3;"></div>
+                        <div class="tarot-card-front hidden">
+                            <!-- Card face will be dynamically generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="tarot-reading-btn" onclick="showTarotReading()" class="px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 opacity-50 cursor-not-allowed mx-auto block mt-2 mb-16" style="background: linear-gradient(135deg, #8b6f47 0%, #6d5a3e 100%); color: white;" disabled>
+                    View Tarot Reading & Guidance →
+                </button>
+
+                
+            </div>
+        </div>
+        
+        <!-- Tarot Reading Page -->
+        <div id="tarot-reading-page" class="min-h-screen gradient-bg flex justify-center px-4" style="display: none; padding-top: 40px; align-items: flex-start;">
+            <div class="w-full mx-auto" style="max-width: 1140px;">
+                <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-8 text-white">
+                    <!-- Title removed -->
+                    
+                    <div class="mb-6">
+    <h3 class="text-xl font-semibold mb-2 text-white">Your Question</h3>
+                        <p id="tarot-question-display" class="bg-white/5 p-4 rounded-lg text-white"></p>
+                    </div>
+                    
+                    <!-- Your Results Title -->
+                    <h3 class="text-xl font-semibold mb-4 text-white">Your Results</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 max-w-6xl mx-auto">
+                        <div class="reading-flip-card">
+                            <div class="reading-flip-card-inner">
+                                <div class="reading-flip-card-front" id="tarot-past-card-front">
+                                    <!-- Card face will be dynamically generated by JavaScript -->
+                                </div>
+                                <div class="reading-flip-card-back">
+                                    <p id="tarot-past-reading" class="text-sm text-center leading-relaxed overflow-y-auto max-h-full px-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="reading-flip-card">
+                            <div class="reading-flip-card-inner">
+                                <div class="reading-flip-card-front" id="tarot-present-card-front">
+                                    <!-- Card face will be dynamically generated by JavaScript -->
+                                </div>
+                                <div class="reading-flip-card-back">
+                                    <p id="tarot-present-reading" class="text-sm text-center leading-relaxed overflow-y-auto max-h-full px-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="reading-flip-card">
+                            <div class="reading-flip-card-inner">
+                                <div class="reading-flip-card-front" id="tarot-future-card-front">
+                                    <!-- Card face will be dynamically generated by JavaScript -->
+                                </div>
+                                <div class="reading-flip-card-back">
+                                    <p id="tarot-future-reading" class="text-sm text-center leading-relaxed overflow-y-auto max-h-full px-2"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Combined point-by-point interpretation of three cards (displayed separately from overall advice) -->
+                    <div id="interpretation-list" class="bg-white/5 rounded-lg p-4 mb-6 text-white"></div>
+                    
+                    <div class="bg-white rounded-lg p-6 shadow-md mb-8 text-gray-800">
+                        <div id="overall-reading"></div>
+                    </div>
+                    
+                    <!-- Bracelet Choice Button -->
+                    <div id="bracelet-choice" class="flex justify-center mb-8" style="display: none;">
+                        <div class="inline-flex gap-4">
+                            <button onclick="generateBraceletColorScheme()" class="px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105" style="background: linear-gradient(135deg, #8b6f47 0%, #6d5a3e 100%); color: white;">
+    Generate My Exclusive Bracelet →
+                            </button>
+                            <button id="back-to-results-btn" onclick="returnToBraceletResults()" class="px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105" style="display: none; background: linear-gradient(135deg, #6b21a8 0%, #581c87 100%); color: white;">
+                                Back to Bracelet Results →
+                            </button>
+                            <button onclick="returnToWelcome()" class="px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-200" style="background: #ffffff; color: #6d5a3e; border: 1px solid #6d5a3e;">
+                                Back to Home
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Loading State -->
+                    <div id="loading-bracelet" class="text-center flex flex-col items-center" style="display: none;">
+    <p class="mb-0" style="color: #FFFFFF;">Mixing your exclusive energy bracelet colors...</p>
+                        <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500 mt-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questionnaire Page -->
+        <div id="questionnaire-page" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4" style="display: none;">
+            <div class="mx-auto" style="max-width: 100%;">
+                <!-- Progress Bar -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-600">Question <span id="current-question">1</span> / 6</span>
+                        <span class="text-sm font-medium text-gray-600"><span id="progress-percent">17</span>%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 17%"></div>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div id="question-card" class="bg-white rounded-lg shadow-lg p-6 mx-auto" style="max-width: 800px;">
+                    <h3 id="question-text" class="text-xl font-semibold mb-6 text-gray-800">Which design style do you prefer?</h3>
+                    <div id="question-options" class="space-y-3">
+                        <!-- Options generated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between mt-8">
+                    <button id="prev-btn" onclick="previousQuestion()" class="px-6 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-200 text-gray-400 cursor-not-allowed">
+                        Previous
+                    </button>
+                    <button id="next-btn" onclick="nextQuestion()" class="px-6 py-3 rounded-lg font-medium transition-all duration-200 bg-gray-200 text-gray-400 cursor-not-allowed">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="results-page" class="min-h-screen results-page py-8 px-4" style="display: none;">
+            <div class="w-full" style="width: 100%; max-width: 100%;">
+                <h2 class="text-3xl font-bold text-center mb-8 text-gray-800">Your Exclusive Bracelet Color Scheme</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: Color Scheme Selection Area (Select Beads) -->
+                    <div class="lg:col-span-3 space-y-6">
+                        <div class="color-selection-section">
+                            <h3 class="text-gray-800 flex items-center gap-2">
+                                <img src="http://cairosstone.com/wp-content/uploads/2026/01/full-moon.png" alt="Select Beads Icon" class="w-5 h-5 object-contain" />
+                                <span>Select Beads</span>
+                            </h3>
+
+                            <!-- Image Color Selection -->
+                            <div class="mb-6">
+                                <div class="image-color-grid grid grid-cols-2" id="image-colors" style="max-height: 500px; overflow-y: auto;">
+                                    <!-- Image color options generated by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        
+
+                        <!-- Color Scheme -->
+                        <div id="color-schemes" class="space-y-4">
+                            <!-- Color scheme will be dynamically generated by JavaScript -->
+                        </div>
+
+                        <!-- Bottom Action Buttons (Export Color Scheme removed; Retest moved to right column) -->
+                        
+                    </div>
+
+                    <!-- Middle: Bracelet Preview and Color Theory -->
+                    <div class="lg:col-span-6 space-y-6">
+                        <!-- Bracelet Preview -->
+                        <div class="bracelet-preview-section">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="mb-0 text-white flex items-center gap-2">
+                                    <img src="http://cairosstone.com/wp-content/uploads/2026/01/moon.png" alt="Bracelet Preview Icon" class="w-5 h-5 object-contain" />
+                                    <span>Bracelet Preview</span>
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    <label for="bead-count-select" class="text-sm text-white">Bead Count:</label>
+                                    <select id="bead-count-select" onchange="updateBeadCount(this.value)" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="16" selected>16 beads</option>
+                                        <option value="17">17 beads</option>
+                                        <option value="18">18 beads</option>
+                                        <option value="19">19 beads</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="color-preview" class="color-preview bg-white/90 rounded-lg">
+                                <!-- Generated by JS -->
+                            </div>
+                        </div>
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Right Side: Bead Color List and Price -->
+                    <div class="lg:col-span-3">
+                        <div class="right-column-section">
+                            <!-- Bead Color List -->
+                            <div class="beads-list-section">
+                                <h4 class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2">
+                                        <img src="http://cairosstone.com/wp-content/uploads/2026/01/crystal.png" alt="Bead Color List Icon" class="w-5 h-5 object-contain" />
+                                        <span>Bead Color List</span>
+                                    </span>
+                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+                                        <span id="bead-count">0</span>/<span id="max-bead-count">16</span>
+                                    </span>
+                                </h4>
+                                <div id="color-details" class="space-y-1 overflow-y-auto">
+                                    <!-- Bead image list generated by JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Price Summary and Action Buttons -->
+                            <div class="price-summary-section">
+                                <!-- Total Price Display -->
+                                <h5 class="text-gray-800">Price Breakdown</h5>
+                                <div class="price-item">
+                                    <span class="price-label">Beads Cost:</span>
+                                    <span id="beads-price" class="price-value">$0</span>
+                                </div>
+                                <div class="price-item">
+                                    <span class="price-label">Total Price:</span>
+                                    <span id="total-price" class="price-value">$0</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <!-- Add to Cart Button -->
+                                <button id="add-to-cart-btn" onclick="addToCart()" class="btn-primary-custom disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9m-9 0V19a2 2 0 002 2h7a2 2 0 002-2v-1M9 19v2m6-2v2"></path>
+                                    </svg>
+                                    Add to Cart
+                                </button>
+                                
+                                <button onclick="clearAllBeads()" class="btn-secondary-custom">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Clear All Beads
+                                </button>
+
+                                <!-- Retake Quiz Button -->
+                                <button onclick="restart()" class="btn-secondary-custom">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Retake Quiz
+                                </button>
+
+                                <button onclick="returnToTarotReading()" class="btn-secondary-custom">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                                    </svg>
+                                    Back to Tarot Reading
+                                </button>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+
+                    <!-- Bottom Row: Color Theory (Horizontal Scroll), Aligned with Preview Area -->
+                    <div class="lg:col-span-12">
+                        <div class="color-theory-row">
+                            <h4 class="text-lg font-semibold mb-3 text-gray-800 flex items-center gap-2">
+                                <span>Color Theory</span>
+                            </h4>
+                            <div id="color-theory-explanation" class="text-gray-700 leading-relaxed">
+                                <p class="mb-3 text-sm bg-gray-50 p-3 rounded-lg border border-gray-200 text-gray-700">
+                                    Based on color theory and psychological soothing principles, choosing a stable color scheme for the bracelet.
+                                </p>
+                                <div id="color-reasoning">
+                                    <!-- Color reasoning generated by JavaScript -->
+                                </div>
+                                <!-- Pagination Navigation: Arrows + Dots Removed, Replaced by Restore Button -->
+                                <div class="color-reasoning-nav" style="justify-content: center; margin-top: 16px; display: none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Terms Module -->
+                    <div class="lg:col-span-12 mt-6">
+                        <div class="color-theory-row">
+                            <h4 class="text-lg font-semibold mb-6 text-gray-800 flex items-center gap-2">
+                                <span>Product Terms</span>
+                            </h4>
+                            <!-- Product Terms Tabs -->
+                            <div class="product-terms-tabs">
+                                <!-- Tab Headers -->
+                                <div class="flex flex-wrap gap-2 border-b border-gray-200 mb-6">
+                                    <button onclick="switchProductTerm('customization')" id="tab-btn-customization" class="tab-btn active px-4 py-2 text-sm font-semibold text-gray-600 hover:text-purple-700 border-b-2 border-transparent hover:border-purple-300 transition-all focus:outline-none">Customization Process</button>
+                                    <button onclick="switchProductTerm('care')" id="tab-btn-care" class="tab-btn px-4 py-2 text-sm font-semibold text-gray-600 hover:text-purple-700 border-b-2 border-transparent hover:border-purple-300 transition-all focus:outline-none">Care & Waterproof</button>
+                                    <button onclick="switchProductTerm('packaging')" id="tab-btn-packaging" class="tab-btn px-4 py-2 text-sm font-semibold text-gray-600 hover:text-purple-700 border-b-2 border-transparent hover:border-purple-300 transition-all focus:outline-none">Packaging</button>
+                                    <button onclick="switchProductTerm('shipping')" id="tab-btn-shipping" class="tab-btn px-4 py-2 text-sm font-semibold text-gray-600 hover:text-purple-700 border-b-2 border-transparent hover:border-purple-300 transition-all focus:outline-none">Shipping</button>
+                                    <button onclick="switchProductTerm('guarantee')" id="tab-btn-guarantee" class="tab-btn px-4 py-2 text-sm font-semibold text-gray-600 hover:text-purple-700 border-b-2 border-transparent hover:border-purple-300 transition-all focus:outline-none">14-Day Guarantee</button>
+                                    <button onclick="switchProductTerm('gift')" id="tab-btn-gift" class="tab-btn px-4 py-2 text-sm font-semibold text-gray-600 hover:text-purple-700 border-b-2 border-transparent hover:border-purple-300 transition-all focus:outline-none">Free Gift</button>
+                                </div>
+
+                                <!-- Tab Contents -->
+                                <div class="min-h-[200px]">
+                                    <!-- 1. Customization Process -->
+                                    <div id="tab-content-customization" class="tab-content block animate-fadeIn">
+                                        <div class="bg-white/50 p-6 rounded-xl border border-gray-100">
+                                            <div class="text-sm text-gray-600 space-y-3">
+                                                <p class="font-bold text-gray-800 text-base">About Our Customization Process and Delivery Time</p>
+                                                <p>To ensure you receive products of the highest quality, please be informed of our production process:</p>
+                                                <ul class="list-disc pl-4 space-y-2">
+                                                    <li><strong>Full Customization:</strong> Your jewelry will be handcrafted by our artisans only after your order is placed.</li>
+                                                    <li><strong>Zero-inventory Production:</strong> We do not engage in mass production or keep ready-made stock, ensuring that every piece is made with sincere care.</li>
+                                                    <li><strong>Quality Focused:</strong> We dedicate more time to fine polishing, prioritizing long-lasting durability over rapid production. This commitment to quality and attention to detail means that our production takes a longer time.</li>
+                                                </ul>
+                                                <p class="mt-4 italic text-purple-800 bg-purple-50 p-3 rounded-lg border border-purple-100">We appreciate your patience and trust that the exquisite piece you receive—one that can be cherished for years to come—is well worth the wait.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Care & Waterproof info -->
+                                    <div id="tab-content-care" class="tab-content hidden animate-fadeIn">
+                                        <div class="bg-white/50 p-6 rounded-xl border border-gray-100">
+                                            <div class="flex justify-between items-center gap-6">
+                                                <img src="public/icons/Care-1.png" alt="Care instructions 1" class="w-1/3 h-auto object-contain">
+                                                <img src="public/icons/Care-2.png" alt="Care instructions 2" class="w-1/3 h-auto object-contain">
+                                                <img src="public/icons/Care-3.png" alt="Care instructions 3" class="w-1/3 h-auto object-contain">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. Packaging -->
+                                    <div id="tab-content-packaging" class="tab-content hidden animate-fadeIn">
+                                        <div class="bg-white/50 p-6 rounded-xl border border-gray-100">
+                                            <div class="flex flex-col md:flex-row gap-6 items-center">
+                                                <div class="text-sm text-gray-600 space-y-3 flex-grow">
+                                                    <ul class="space-y-3">
+                                                        <li class="flex items-start gap-3">
+                                                            <span class="text-lg">📦</span>
+                                                            <div>
+                                                                <strong>Gift Box:</strong> Premium Gift Box: Elegant presentation box perfect for gifting.
+                                                            </div>
+                                                        </li>
+                                                        <li class="flex items-start gap-3">
+                                                            <span class="text-lg">👜</span>
+                                                            <div>
+                                                                <strong>Velvet Jewelry Pouch:</strong> Soft protective pouch for daily storage.
+                                                            </div>
+                                                        </li>
+                                                        <li class="flex items-start gap-3">
+                                                            <span class="text-lg">💌</span>
+                                                            <div>
+                                                                <strong>After-sales service card:</strong> Heartfelt note with crystal care instructions.
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                                <div class="rounded-lg overflow-hidden shadow-sm w-full md:w-1/2 flex-shrink-0">
+                                                    <img src="http://cairosstone.com/wp-content/uploads/2026/01/Packaging-Custom-scaled.jpg" alt="Premium Packaging" class="w-1/2 h-auto object-cover ml-auto" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4. Shipping -->
+                                    <div id="tab-content-shipping" class="tab-content hidden animate-fadeIn">
+                                        <div class="bg-white/50 p-6 rounded-xl border border-gray-100">
+                                            <div class="text-sm text-gray-600 space-y-3">
+                                                <div class="flex flex-col md:flex-row gap-6">
+                                                    <div class="flex-1 space-y-3">
+                                                        <p><strong>Handmade & Made-to-Order:</strong> Each bracelet is handcrafted and takes 3-5 business days to create before shipping.</p>
+                                                        <p><strong>Shipping Time:</strong> Estimated delivery is 7-15 business days after shipment.</p>
+                                                    </div>
+                                                    <div class="flex-1 space-y-3">
+                                                        <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                                                            <p class="text-green-800">Free shipping on all crystal bracelets, no minimum purchase required. Enjoy delivery straight to your door.</p>
+                                                        </div>
+                                                        <p><strong>Order Tracking:</strong> You will receive a tracking number via email once your bracelet ships.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 5. 14-Day Guarantee -->
+                                    <div id="tab-content-guarantee" class="tab-content hidden animate-fadeIn">
+                                        <div class="bg-white/50 p-6 rounded-xl border border-gray-100">
+                                            <div class="text-sm text-gray-600 space-y-4 text-center">
+                                                <div class="text-4xl mb-2">👑</div>
+                                                <p>Every handcrafted crystal jewellery piece embodies our passion and dedication to quality. We are confident that you will cherish this Vitality Gemstone Bracelet as much as we loved creating it.</p>
+                                                <p class="font-bold text-purple-700 text-lg">However, in case it doesn’t resonate with you, we offer a 14-day happiness guarantee - love it or simply return it.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 6. Free Gift -->
+                                    <div id="tab-content-gift" class="tab-content hidden animate-fadeIn">
+                                        <div class="bg-white/50 p-6 rounded-xl border border-gray-100">
+                                            <div class="text-sm text-gray-600 space-y-3 flex flex-col items-center text-center">
+                                                <div class="text-5xl mb-2 animate-bounce">🎁</div>
+                                                <p class="text-lg font-bold text-gray-800">Receive a free <span class="text-purple-600">Palo Santo stick</span> with every purchase over $95!</p>
+                                                <p class="italic text-gray-500 max-w-md">"A natural way to purify your space and enhance your energy."</p>
+                                                <div class="mt-4 rounded-lg overflow-hidden shadow-sm w-32 md:w-40">
+                                                    <img src="http://cairosstone.com/wp-content/uploads/2025/09/Palo-Santo-stick-1.jpg" alt="Free Palo Santo stick" class="w-full h-auto object-cover" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>
